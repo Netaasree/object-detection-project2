@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Object Detection</title>
+</head>
+<body>
+    <h2>Upload an Image for Object Detection</h2>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="image">
+        <input type="submit" value="Detect">
+    </form>
+
+    {% if result %}
+    <h3>Result:</h3>
+    <img src="{{ url_for('static', filename='outputs/' + result.split('/')[-1]) }}" width="500">
+
+    {% endif %}
+</body>
+</html>
