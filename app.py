@@ -1,9 +1,9 @@
 import os
 import cv2
-import torch
 from flask import Flask, request, redirect, url_for, render_template_string, Response
 from werkzeug.utils import secure_filename
 from PIL import Image
+from ultralytics import YOLO  # updated import
 
 app = Flask(__name__)
 
@@ -14,20 +14,19 @@ ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png'}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULT_FOLDER, exist_ok=True)
 
-model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+# updated model loading
+model = YOLO("yolov5s.pt")
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# updated detect_image function
 def detect_image(input_path, output_path):
-    img = Image.open(input_path)
-    results = model(img)
-    results.render()
-    result_img = results.ims[0]
-    result_img = cv2.cvtColor(result_img, cv2.COLOR_RGB2BGR)
+    results = model.predict(source=input_path, save=False)
+    result_img = results[0].plot()
     cv2.imwrite(output_path, result_img)
 
-# HTML templates with Bootstrap and colorful styling
+# HTML templates unchanged (INDEX_HTML, RESULT_HTML, CAMERA_HTML) - keep as is
 INDEX_HTML = '''
 <!doctype html>
 <html lang="en">
@@ -215,10 +214,8 @@ def generate_frames():
         success, frame = cap.read()
         if not success:
             break
-        results = model(frame)
-        results.render()
-        frame = results.ims[0]
-        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        results = model.predict(source=frame, save=False)
+        frame = results[0].plot()
         ret, buffer = cv2.imencode('.jpg', frame)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
