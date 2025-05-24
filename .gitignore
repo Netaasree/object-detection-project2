@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+.env
+.env.*
+venv/
+.venv/
+instance/
+*.sqlite3
+*.log
+yolov5/runs/
+static/uploads/
